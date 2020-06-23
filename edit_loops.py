@@ -1,8 +1,10 @@
 from enum import Enum
 import glfw
 import OpenGL.GL as gl
-import my_gl as my_gl
-import cv2
+import cv2, sys, os
+
+sys.path.append( os.path.dirname(os.path.abspath(__file__)) )
+import my_gl
 
 def display(loops:list,iloop_selected:int,img_size_info:list):
   gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
@@ -65,7 +67,8 @@ def edit_loops(path_img:str, loops:list):
       is_mouse_down = False
 
   def cursor_pos(window, xpos, ypos):
-    import loop
+#    import dnnutil.loop as loop
+    import loop as loop
     if not is_mouse_down:
       return
     if mode_edit == EditMode.EDIT_LOOP:
@@ -130,7 +133,8 @@ def edit_loops(path_img:str, loops:list):
   return mode_exit
 
 if __name__ == "__main__":
-  loops = [[100,100, 100,200, 200,200, 200,100], [300,300,400,400,300,400]]
+  loops = [[100,100, 100,200, 200,200, 200,100],
+           [300, 300, 400, 400, 300, 400]]
   while True:
     mode_exit = edit_loops("testdata/img1.jpg", loops)
     print(mode_exit)

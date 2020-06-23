@@ -11,7 +11,7 @@ class QWidgetPainter(QWidget):
     self.pixmap_b = QPixmap.fromImage(qimage_b)
     self.pixmap_f = QPixmap.fromImage(qimage_f)
     self.alpha = 128
-    self.brushsize = 10
+    self.brushsize = 30
     self.brushcolor = QColor(255,0,0,255)
 
   def paintEvent(self, event):

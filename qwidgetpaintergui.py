@@ -8,8 +8,12 @@ from PyQt5.QtCore import Qt
 import numpy as np
 import qwidgetpainter
 
+
+
 class QWidgetPainterGui(QWidget):
+
   def __init__(self, qimg_b,qimg_f,alabel):
+    assert qimg_b.size() == qimg_f.size()
     super(QWidgetPainterGui, self).__init__()
 
     scrollArea = QScrollArea()

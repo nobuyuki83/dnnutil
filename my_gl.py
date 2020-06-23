@@ -1,5 +1,6 @@
 import OpenGL.GL as gl
-import cv2, math, numpy
+import cv2.cv2 as cv2
+import math, numpy
 
 def print_gl_version():
   print('Vendor :', gl.glGetString(gl.GL_VENDOR))
