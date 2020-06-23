@@ -1,6 +1,5 @@
 import math
 
-
 def pick_loop_vertex(xy1:list, loops:list):
   iloop_selected = -1
   ivtx_selected = -1
@@ -57,12 +56,11 @@ def area_loop(loop:list):
 def clean_loop(loops:list):
     loops_new = []
     for loop in loops:
-      if len(loop) == 0:
+      if len(loop) < 3:
         pass
       else:
         loops_new.append(loop)
     return loops_new
-
 
 def move_segmentationloop(loops:list, iloop_selected:int, ivtx_selected:int, xy:list):
   if iloop_selected >= 0 and iloop_selected < len(loops):

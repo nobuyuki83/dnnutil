@@ -116,10 +116,6 @@ def edit_loops(path_img:str, loops:list):
   glfw.set_mouse_button_callback(window, mouse_button)
   glfw.set_key_callback(window, keyboard)
 
-  print('Vendor :', gl.glGetString(gl.GL_VENDOR))
-  print('GPU :', gl.glGetString(gl.GL_RENDERER))
-  print('OpenGL version :', gl.glGetString(gl.GL_VERSION))
-
   img_size_info = my_gl.load_texture( cv2.imread(path_img) )
 
   while not glfw.window_should_close(window):

@@ -1,62 +1,16 @@
 import OpenGL.GL as gl
-import cv2, math
+import cv2, math, numpy
 
-def pick_loop_vertex(xy1:list,key:str,dict_prsn:dict):
-  iloop_selected = -1
-  ivtx_selected = -1
-  if not key in dict_prsn:
-    return
-  min_len = -1.0
-  for iloop, loop in enumerate(dict_prsn[key]):
-    for ivtx in range(len(loop) // 2):
-      xy0 = loop[ivtx * 2 + 0], loop[ivtx * 2 + 1]
-      len0 = math.sqrt((xy0[0] - xy1[0]) * (xy0[0] - xy1[0]) + (xy0[1] - xy1[1]) * (xy0[1] - xy1[1]))
-      if min_len < 0 or len0 < min_len:
-        min_len = len0
-        iloop_selected = iloop
-        ivtx_selected = ivtx
-  return iloop_selected,ivtx_selected
+def print_gl_version():
+  print('Vendor :', gl.glGetString(gl.GL_VENDOR))
+  print('GPU :', gl.glGetString(gl.GL_RENDERER))
+  print('OpenGL version :', gl.glGetString(gl.GL_VERSION))
 
-def pick_loop_edge(xy2:list, key:str, dict_prsn:dict):
-  iloop_selected = -1
-  ivtx_selected = -1
-  if not key in dict_prsn:
-    return iloop_selected,ivtx_selected, [0,0]
-  min_len = -1.0
-  min_xy3 = [0,0]
-  for iloop, loop in enumerate(dict_prsn[key]):
-    for iv0 in range(len(loop) // 2):
-      iv1 = (iv0+1)%(len(loop)//2)
-      xy0 = loop[iv0 * 2 + 0], loop[iv0 * 2 + 1]
-      xy1 = loop[iv1 * 2 + 0], loop[iv1 * 2 + 1]
-      v01 = xy1[0]-xy0[0],xy1[1]-xy0[1]
-      v02 = xy2[0]-xy0[0],xy2[1]-xy0[1]
-      ratio_selected = (v01[0]*v02[0]+v01[1]*v02[1])/(v01[0]*v01[0]+v01[1]*v01[1])
-      if ratio_selected < 0.2: ratio_selected = 0.2
-      if ratio_selected > 0.8: ratio_selected = 0.8
-      xy3 = (1-ratio_selected)*xy0[0]+ratio_selected*xy1[0],(1-ratio_selected)*xy0[1]+ratio_selected*xy1[1]
-      len23 = math.sqrt((xy2[0] - xy3[0]) * (xy2[0] - xy3[0]) + (xy2[1] - xy3[1]) * (xy2[1] - xy3[1]))
-      if min_len < 0 or len23 < min_len:
-        min_len = len23
-        min_xy3 = xy3
-        iloop_selected = iloop
-        ivtx_selected = iv1
-  return iloop_selected,ivtx_selected,min_xy3
-
-
-def area_loop(loop):
-  nv = len(loop)//2
-  area = 0.0
-  for iv0 in range(nv):
-    iv1 = (iv0+1)%nv
-    xy0 = loop[iv0 * 2 + 0], loop[iv0 * 2 + 1]
-    xy1 = loop[iv1 * 2 + 0], loop[iv1 * 2 + 1]
-    area += xy0[0]*xy1[1] - xy0[1]*xy1[0]
-  return 0.5*area
-
-
-########################################################################################3
-def load_texture(img_bgr):
+def load_texture(img_bgr:numpy.ndarray):
+  '''
+  :param img_bgr: numpy array. result of cv2.imread
+  :return:
+  '''
   img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
   width_org = img_rgb.shape[1]
   height_org = img_rgb.shape[0]
@@ -104,8 +58,6 @@ def drawCircle(cnt, rad, color=(1, 0, 0), width=1):
                   -cnt[1] + rad * math.sin(dt * i),
                   -0.1)
   gl.glEnd()
-  ###
-
 
 def drawLine(cnt0, cnt1, color=(1, 0, 0), width=1):
   gl.glDisable(gl.GL_TEXTURE_2D)
