@@ -3,7 +3,6 @@ import glfw
 import OpenGL.GL as gl
 import cv2, sys, os
 
-sys.path.append( os.path.dirname(os.path.abspath(__file__)) )
 import my_gl
 
 def display(loops:list,iloop_selected:int,img_size_info:list):

@@ -105,10 +105,9 @@ class QWidgetPainterGui(QWidget):
     self.is_save_after_closed = True
     self.close()
 
-if __name__ == '__main__':
+def painter_gui(path_img_b, path_img_f, alabel):
   from PIL import Image
 
-  path_img_b = "testdata/img1.jpg"
   img_b = Image.open(path_img_b)
   img_b = np.asarray(img_b).copy()
   qimage_b = QImage(img_b.data,
@@ -116,26 +115,36 @@ if __name__ == '__main__':
                     img_b.shape[1] * 3,
                     QImage.Format_RGB888)
 
-  path_img_f = "testdata/img1_.png"
-#  img_f = Image.new('RGBA', (img_b.shape[1], img_b.shape[0]), (0, 0, 0, 0))
+  #  img_f = Image.new('RGBA', (img_b.shape[1], img_b.shape[0]), (0, 0, 0, 0))
   img_f = Image.open(path_img_f)
   img_f = np.asanyarray(img_f).copy()
-  img_f = img_f[:,:,[2,1,0,3]].copy()
+  img_f = img_f[:, :, [2, 1, 0, 3]].copy()
   qimage_f = QImage(img_f.data,
                     img_f.shape[1], img_f.shape[0],
                     img_f.shape[1] * 4,
                     QImage.Format_ARGB32)
 
   alabel = []
-  alabel.append(['background',QColor(0,0,0,0)])
-  alabel.append(['body',QColor(255,0,0,255)])
+  alabel.append(['background', QColor(0, 0, 0, 0)])
+  alabel.append(['body', QColor(255, 0, 0, 255)])
 
   app = QApplication(sys.argv)
   ex = QWidgetPainterGui(qimage_b, qimage_f, alabel)
-  ex.setMinimumSize(800,600)
+  ex.setMinimumSize(800, 600)
 
   ex.show()
   app.exec_()
 
   if ex.is_save_after_closed:
     ex.painter.pixmap_f.save(path_img_f)
+
+if __name__ == '__main__':
+  path_img_b = "testdata/img1.jpg"
+  path_img_f = "testdata/img1_.png"
+
+  alabel = []
+  alabel.append(['background',QColor(0,0,0,0)])
+  alabel.append(['body',QColor(255,0,0,255)])
+  print(alabel)
+
+  painter_gui(path_img_b, path_img_f, alabel)
