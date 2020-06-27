@@ -23,7 +23,7 @@ def imcrop(img, bbox):
   x1, y1, x2, y2 = bbox
   if x1 < 0 or y1 < 0 or x2 > img.shape[1] or y2 > img.shape[0]:
     img, x1, x2, y1, y2 = pad_img_to_fit_bbox(img, x1, x2, y1, y2)
-  print(x1,x2,y1,y2)
+#  print(x1,x2,y1,y2)
   if len(img.shape) == 3:
     return img[y1:y2, x1:x2, :]
   if len(img.shape) == 2:
@@ -60,6 +60,7 @@ def make_image_label(imgbgrseg,aColorClass):
 
 
 if __name__ == "__main__":
+
   path_img = "testdata/img1.jpg"
   path_imgseg = path_img.rsplit(".", 1)[0] + "_.png"
   radhead = 50
@@ -90,3 +91,23 @@ if __name__ == "__main__":
   cv2.imshow("hoge_lbl", nplabel.reshape(*nplabel.shape,1).astype(np.uint8)*255 )
   cv2.imshow("hoge_seg", imgsegbgr)
   cv2.waitKey(0)
+
+
+  import torch
+  import torch.nn as nn
+  import torch.nn.functional as F
+  import unet
+
+  ptimgbgr = torch.from_numpy( imgbgr.reshape((1, *imgbgr.shape)).transpose(0, 3, 1,2).astype(np.float32) ) - 0.5
+  ptimgseg = torch.from_numpy(nplabel.reshape((1, *nplabel.shape)).astype(np.int64))
+
+  unet = unet.UNet(3,2,True)
+  ptimgout = unet.forward(ptimgbgr)
+
+  print(ptimgbgr.shape, ptimgseg.shape, ptimgout.shape)
+
+  nllcrit = nn.NLLLoss()
+  loss = nllcrit(F.log_softmax(ptimgout,dim=1), ptimgseg)
+  print(loss.data)
+
+

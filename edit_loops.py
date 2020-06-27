@@ -1,8 +1,9 @@
 from enum import Enum
+import numpy as np
+#
 import glfw
 import OpenGL.GL as gl
-import cv2, sys, os
-
+#
 import my_gl
 
 def display(loops:list,iloop_selected:int,img_size_info:list):
@@ -24,7 +25,7 @@ class ExitFlag(Enum):
   NEXT1 = 4
   NEXT10 = 5
 
-def edit_loops(path_img:str, loops:list):
+def edit_loops(imgbgr:np.ndarray, loops:list):
   class EditMode(Enum):
     EDIT_LOOP = 1
     NEW_LOOP = 2
@@ -118,7 +119,7 @@ def edit_loops(path_img:str, loops:list):
   glfw.set_mouse_button_callback(window, mouse_button)
   glfw.set_key_callback(window, keyboard)
 
-  img_size_info = my_gl.load_texture( cv2.imread(path_img) )
+  img_size_info = my_gl.load_texture( imgbgr )
 
   while not glfw.window_should_close(window):
     display(loops,iloop_selected,img_size_info)
@@ -132,10 +133,9 @@ def edit_loops(path_img:str, loops:list):
   return mode_exit
 
 if __name__ == "__main__":
-  loops = [[100,100, 100,200, 200,200, 200,100],
-           [300, 300, 400, 400, 300, 400]]
-  while True:
-    mode_exit = edit_loops("testdata/img1.jpg", loops)
-    print(mode_exit)
-    if mode_exit == ExitFlag.EXIT_WITHOUT_SAVE or mode_exit == ExitFlag.NO_EXIT:
-      break
+
+  import cv2.cv2 as cv2
+
+  mode_exit = edit_loops(cv2.imread("testdata/img1.jpg"),
+                         [[100, 100, 100, 200, 200, 200, 200, 100],
+                          [300, 300, 400, 400, 300, 400]])

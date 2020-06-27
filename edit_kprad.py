@@ -1,7 +1,10 @@
 from enum import Enum
+import numpy as np
+import math
+#
 import glfw
 import OpenGL.GL as gl
-import cv2, math
+
 
 import my_gl
 
@@ -41,7 +44,7 @@ class ExitFlag(Enum):
   NEXT1 = 4
   NEXT10 = 5
 
-def edit_kprad(path_img:str, kprad:list):
+def edit_kprad(imgbgr:np.ndarray, kprad:list):
 
   iselected = -1
   is_mouse_down = False
@@ -99,7 +102,7 @@ def edit_kprad(path_img:str, kprad:list):
   glfw.set_mouse_button_callback(window, mouse_button)
   glfw.set_key_callback(window, keyboard)
 
-  img_size_info = my_gl.load_texture( cv2.imread(path_img) )
+  img_size_info = my_gl.load_texture( imgbgr )
 
   while not glfw.window_should_close(window):
     display(kprad,iselected,img_size_info)
@@ -113,10 +116,11 @@ def edit_kprad(path_img:str, kprad:list):
   return mode_exit
 
 if __name__ == "__main__":
-  kprad = [300,300,50]
+  import cv2.cv2 as cv2
 
   while True:
-    mode_exit = edit_kprad("testdata/img1.jpg",kprad)
+    mode_exit = edit_kprad(cv2.imread("testdata/img1.jpg"),
+                           [300,300,50])
 
     # exit without save
     if mode_exit == ExitFlag.EXIT_WITHOUT_SAVE or mode_exit == ExitFlag.NO_EXIT:
