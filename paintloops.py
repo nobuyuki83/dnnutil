@@ -2,14 +2,14 @@ import os.path
 import numpy as np
 import cv2.cv2 as cv2
 
-def paintloops(shape, path_imgseg, loops, color):
+def paintloops(imgsize, path_imgseg, loops, color):
 
   if os.path.isfile(path_imgseg):
     imgseg = cv2.imread(path_imgseg)
-    if imgseg.shape[0] != shape[0] or imgseg.shape[1] != shape[1] or imgseg.shape[2] != 4:
-      imgseg = np.zeros((shape[1], shape[0], 4))
+    if imgseg.shape[0] != imgsize[0] or imgseg.shape[1] != imgsize[1] or imgseg.shape[2] != 4:
+      imgseg = np.zeros((imgsize[1], imgsize[0], 4))
   else:
-    imgseg = np.zeros((shape[1], shape[0], 4))
+    imgseg = np.zeros((imgsize[1], imgsize[0], 4))
 
   npls = []
   for loop in loops:
@@ -28,14 +28,15 @@ if __name__ == '__main__':
            [300, 300, 400, 400, 300, 400]]
   color = [255,0,0,255]
 
-  imgseg = paintloops(cv2.imread(path_img).shape,
+  imgseg = paintloops(cv2.imread(path_img).shape[::-1][1:3],
                       path_imgseg,
                       loops,
                       color)
 
-  #cv2.imshow("imgseg",imgseg)
-  #cv2.waitKey(0)
+  print(imgseg.shape)
+  cv2.imshow("imgseg",imgseg)
+  cv2.waitKey(0)
 
-  cv2.imwrite(path_imgseg,imgseg)
+  #cv2.imwrite(path_imgseg,imgseg)
 
 
