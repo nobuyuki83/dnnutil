@@ -1,25 +1,28 @@
 import OpenGL.GL as gl
-import cv2.cv2 as cv2
-import math, numpy
 
 def print_gl_version():
   print('Vendor :', gl.glGetString(gl.GL_VENDOR))
   print('GPU :', gl.glGetString(gl.GL_RENDERER))
   print('OpenGL version :', gl.glGetString(gl.GL_VERSION))
 
-def load_texture(img_bgr:numpy.ndarray):
+
+def load_texture(img_bgr):
+  from numpy import pad
+  from math import pow, ceil, log
   '''
   :param img_bgr: numpy array. result of cv2.imread
   :return:
   '''
-  img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+  img_rgb = img_bgr[:,:,[2,1,0]]
   width_org = img_rgb.shape[1]
   height_org = img_rgb.shape[0]
-  width_po2 = int(math.pow(2, math.ceil(math.log(width_org, 2))))
-  height_po2 = int(math.pow(2, math.ceil(math.log(height_org, 2))))
-  img_rgb = cv2.copyMakeBorder(img_rgb,
-                               0, height_po2 - height_org, 0, width_po2 - width_org,
-                               cv2.BORDER_CONSTANT, (0, 0, 0))
+  width_po2 = int(pow(2,ceil(log(width_org, 2))))
+  height_po2 = int(pow(2,ceil(log(height_org, 2))))
+  img_rgb = pad(img_rgb,
+                ((0, height_po2 - height_org),
+                 (0, width_po2 - width_org),
+                 (0,0)),
+                mode="constant")
   rw = width_org / width_po2
   rh = height_org / height_po2
   gl.glEnable(gl.GL_TEXTURE_2D)
@@ -31,6 +34,7 @@ def load_texture(img_bgr:numpy.ndarray):
   gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
   gl.glTexParameterf(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
   return (width_org, height_org, rw, rh, texid)
+
 
 def drawRect(rect, color=(1, 0, 0), width=1):
   plt = (rect[0], -rect[1])
@@ -47,7 +51,9 @@ def drawRect(rect, color=(1, 0, 0), width=1):
   gl.glVertex2f(plt[0], plt[1] - size_rect_h)
   gl.glEnd()
 
+
 def drawCircle(cnt, rad, color=(1, 0, 0), width=1):
+  from numpy import cos, sin
   gl.glDisable(gl.GL_TEXTURE_2D)
   gl.glColor3d(color[0], color[1], color[2])
   gl.glLineWidth(width)
@@ -55,10 +61,11 @@ def drawCircle(cnt, rad, color=(1, 0, 0), width=1):
   ndiv = 32
   dt = 3.1415*2.0/ndiv
   for i in range(32):
-    gl.glVertex3f(+cnt[0]+rad*math.cos(dt*i),
-                  -cnt[1] + rad * math.sin(dt * i),
+    gl.glVertex3f(+cnt[0] + rad * cos(dt * i),
+                  -cnt[1] + rad * sin(dt * i),
                   -0.1)
   gl.glEnd()
+
 
 def drawLine(cnt0, cnt1, color=(1, 0, 0), width=1):
   gl.glDisable(gl.GL_TEXTURE_2D)
@@ -81,7 +88,6 @@ def drawPolyline(pl, color=(1, 0, 0), width=1):
   gl.glEnd()
 
 
-
 def set_view_trans(img_size_info):
   viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
   win_h = viewport[3]
@@ -95,6 +101,7 @@ def set_view_trans(img_size_info):
   gl.glOrtho(0, win_w * scale_imgwin, -win_h * scale_imgwin, 0, -1000, 1000)
   gl.glMatrixMode(gl.GL_MODELVIEW)
   gl.glLoadIdentity()
+
 
 def draw_img(img_size_info):
   img_w = img_size_info[0]
@@ -124,7 +131,6 @@ def draw_img(img_size_info):
   gl.glEnd()
 
 
-
 def get_img_coord(xy, img_size_info):
   ####
   viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
@@ -138,6 +144,7 @@ def get_img_coord(xy, img_size_info):
   x1 = xy[0] * scale_imgwin
   y1 = xy[1] * scale_imgwin
   return (x1, y1)
+
 
 def draw_segmentation_loops(dict_info,selected_loop:int,name_seg:str):
   if name_seg in dict_info:
@@ -154,6 +161,7 @@ def draw_segmentation_loops(dict_info,selected_loop:int,name_seg:str):
         y = loop[ip*2+1]
         gl.glVertex2d(x,-y)
       gl.glEnd()
+
 
 def draw_loops(loops:list,selected_loop:int):
   for iloop,loop in enumerate(loops):

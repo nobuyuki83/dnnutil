@@ -1,14 +1,14 @@
 import sys
+import numpy as np
+#
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, \
   QLabel, QVBoxLayout, QHBoxLayout, QGridLayout, \
   QSlider, QRadioButton, QButtonGroup, \
-  QScrollArea
-from PyQt5.QtGui import QPainter, QColor, QImage
+  QScrollArea, QCheckBox
+from PyQt5.QtGui import QColor, QImage
 from PyQt5.QtCore import Qt
-import numpy as np
-import qwidgetpainter
-
-
+#
+import qt_painter
 
 class QWidgetPainterGui(QWidget):
 
@@ -17,7 +17,7 @@ class QWidgetPainterGui(QWidget):
     super(QWidgetPainterGui, self).__init__()
 
     scrollArea = QScrollArea()
-    self.painter = qwidgetpainter.QWidgetPainter(qimg_b,qimg_f)
+    self.painter = qt_painter.QWidgetPainter(qimg_b,qimg_f)
     self.painter.setFixedSize(qimg_b.width(),qimg_b.height())
     scrollArea.setWidget(self.painter)
 
@@ -27,6 +27,9 @@ class QWidgetPainterGui(QWidget):
     buttonA = QPushButton('Save && Exit')
     buttonA.setFixedWidth(width0)
     buttonA.pressed.connect(self.buttonA_pressed)
+
+    checkbox = QCheckBox('Paint ATop')
+    checkbox.toggled.connect(self.checkbox_toggled)
 
     labelA = QLabel('Alpha')
     labelA.setFixedWidth(width0)
@@ -47,16 +50,18 @@ class QWidgetPainterGui(QWidget):
     buttongroup = QButtonGroup()
     self.list_radiobutton_color = []
     for ilabel, label in enumerate(alabel):
-      button = QRadioButton(label[0])
-      self.list_radiobutton_color.append( (button,label[1]) )
-      button.released.connect(self.buttongroup_buttonClicked)
-      buttongroup.addButton(button,ilabel)
+      radiobutton = QRadioButton(label[0])
+      self.list_radiobutton_color.append( (radiobutton,label[1]) )
+      radiobutton.released.connect(self.buttongroup_buttonClicked)
+      buttongroup.addButton(radiobutton,ilabel)
     assert len(self.list_radiobutton_color) > 0
     self.list_radiobutton_color[0][0].setChecked(True)
     self.buttongroup_buttonClicked()
 
     v_box = QVBoxLayout()
     v_box.addWidget(buttonA)
+    v_box.addWidget(checkbox)
+    v_box.addSpacing(20)
     v_box.addWidget(labelA)
     v_box.addWidget(self.sliderA)
     v_box.addWidget(labelB)
@@ -105,46 +110,64 @@ class QWidgetPainterGui(QWidget):
     self.is_save_after_closed = True
     self.close()
 
-def painter_gui(path_img_b, path_img_f, alabel):
-  from PIL import Image
+  def checkbox_toggled(self,isChecked:bool):
+    self.painter.is_paint_atop = isChecked
 
-  img_b = Image.open(path_img_b)
-  img_b = np.asarray(img_b).copy()
+def painter_gui(img_b:np.ndarray,
+                img_f:np.ndarray,
+                alabel:list):
+  '''
+  :param img_b: numpy.ndarray rgb wihtout alpha channel
+  :param img_f: numpy.ndarray rgba
+  :param alabel:
+  :return:
+  '''
+  assert img_b.shape[2] == 3 and img_b.dtype == np.uint8
+  assert img_f.shape[2] == 4 and img_f.dtype == np.uint8
+  assert img_b.shape[:2] == img_f.shape[:2]
+
   qimage_b = QImage(img_b.data,
                     img_b.shape[1], img_b.shape[0],
                     img_b.shape[1] * 3,
                     QImage.Format_RGB888)
 
-  #  img_f = Image.new('RGBA', (img_b.shape[1], img_b.shape[0]), (0, 0, 0, 0))
-  img_f = Image.open(path_img_f)
-  img_f = np.asanyarray(img_f).copy()
-  img_f = img_f[:, :, [2, 1, 0, 3]].copy()
-  qimage_f = QImage(img_f.data,
+  qimage_f = QImage(img_f[:, :, [2, 1, 0, 3]].copy().data,
                     img_f.shape[1], img_f.shape[0],
                     img_f.shape[1] * 4,
                     QImage.Format_ARGB32)
 
-  alabel = []
-  alabel.append(['background', QColor(0, 0, 0, 0)])
-  alabel.append(['body', QColor(255, 0, 0, 255)])
+  aNameColor = []
+  for label in alabel:
+    aNameColor.append([label[0], QColor(*label[1])])
 
   app = QApplication(sys.argv)
-  ex = QWidgetPainterGui(qimage_b, qimage_f, alabel)
+  ex = QWidgetPainterGui(qimage_b, qimage_f, aNameColor)
   ex.setMinimumSize(800, 600)
 
   ex.show()
   app.exec_()
 
-  if ex.is_save_after_closed:
-    ex.painter.pixmap_f.save(path_img_f)
+  qimage_fo = ex.painter.pixmap_f.toImage()
+  ptr = qimage_fo.bits()
+  ptr.setsize(qimage_fo.height()*qimage_fo.width()*4)
+  np_img_fo = np.array(ptr).reshape((qimage_fo.height(), qimage_fo.width(), 4))[:,:,[2,1,0,3]]
+
+  return np_img_fo, ex.is_save_after_closed
+
+############################################
+
+def demo():
+  from PIL import Image
+
+  np_imgseg, is_save = painter_gui(
+    np.asarray(Image.open("testdata/img1.jpg")).copy(),
+    np.asarray(Image.open("testdata/img1_0_.png")).copy(),
+    alabel = [
+      ['background', (0, 0, 0, 0)],
+      ['body', (255, 0, 0, 255)],
+      ['face', (0, 0, 255, 255)]] )
+
+  Image.fromarray(np_imgseg).show()
 
 if __name__ == '__main__':
-  path_img_b = "testdata/img1.jpg"
-  path_img_f = "testdata/img1_.png"
-
-  alabel = []
-  alabel.append(['background',QColor(0,0,0,0)])
-  alabel.append(['body',QColor(255,0,0,255)])
-  print(alabel)
-
-  painter_gui(path_img_b, path_img_f, alabel)
+  demo()

@@ -109,3 +109,21 @@ class UNet(nn.Module):
     x = self.up4(x, x1)
     logits = self.outc(x)
     return logits
+
+#############################################################
+
+def demo():
+  import numpy as np
+
+  npimgbgr = np.random.randint(0,255,(256,256,3), dtype=np.uint8)
+  nplabel = np.random.randint(0,1,(256,256),dtype=np.int64)
+
+  ptimgbgr = torch.from_numpy(npimgbgr.reshape((1, *npimgbgr.shape)).transpose(0, 3, 1, 2).astype(np.float32) )/255.0 - 0.5
+  ptimgseg = torch.from_numpy(nplabel.reshape((1, *nplabel.shape)).astype(np.int64))
+  unet = UNet(3,2,True)
+  ptimgout = unet.forward(ptimgbgr)
+  loss = nn.CrossEntropyLoss()(ptimgout,ptimgseg)
+  print("loss:",loss.data.item())
+
+if __name__ == "__main__":
+  demo()

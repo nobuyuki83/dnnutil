@@ -2,7 +2,10 @@ import random
 import torch
 
 class Batchloader():
-  def __init__(self,ptIn,ptTg,batchsize=16):
+  def __init__(self,
+               ptIn: torch.Tensor,
+               ptTg: torch.Tensor,
+               batchsize=16):
     assert ptIn.shape[1] == 3
     assert ptIn.shape[0] == ptTg.shape[0]
     assert ptIn.shape[2] == ptTg.shape[1]

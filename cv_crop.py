@@ -1,19 +1,26 @@
 import random
-import cv2.cv2 as cv2
 import numpy as np
+#
+import cv2.cv2 as cv2
 
 def pad_img_to_fit_bbox(img, x1, x2, y1, y2):
   if len(img.shape) == 3:
-    img = np.pad(img, ((np.abs(np.minimum(0, y1)), np.maximum(y2 - img.shape[0], 0)),
-                       (np.abs(np.minimum(0, x1)), np.maximum(x2 - img.shape[1], 0)), (0, 0)), mode="constant")
+    img = np.pad(img,
+                 ((np.abs(np.minimum(0, y1)), np.maximum(y2 - img.shape[0], 0)),
+                  (np.abs(np.minimum(0, x1)), np.maximum(x2 - img.shape[1], 0)),
+                  (0, 0)),
+                 mode="constant")
   if len(img.shape) == 2:
-    img = np.pad(img, ((np.abs(np.minimum(0, y1)), np.maximum(y2 - img.shape[0], 0)),
-                       (np.abs(np.minimum(0, x1)), np.maximum(x2 - img.shape[1], 0))), mode="constant")
+    img = np.pad(img,
+                 ((np.abs(np.minimum(0, y1)), np.maximum(y2 - img.shape[0], 0)),
+                  (np.abs(np.minimum(0, x1)), np.maximum(x2 - img.shape[1], 0))),
+                 mode="constant")
   y2 += np.abs(np.minimum(0, y1))
   y1 += np.abs(np.minimum(0, y1))
   x2 += np.abs(np.minimum(0, x1))
   x1 += np.abs(np.minimum(0, x1))
   return img, x1, x2, y1, y2
+
 
 def imcrop(img, bbox):
   '''
@@ -29,6 +36,7 @@ def imcrop(img, bbox):
   if len(img.shape) == 2:
     return img[y1:y2, x1:x2]
 
+
 def imscalecrop(img_bgr0, scale, center, trgsize, interpolation):
   img_bgr1 = cv2.resize(img_bgr0,
                         (int(scale*img_bgr0.shape[1]), int(scale*img_bgr0.shape[0])),
@@ -41,10 +49,12 @@ def imscalecrop(img_bgr0, scale, center, trgsize, interpolation):
   img_bgr2 = imcrop(img_bgr1.copy(),bbox)
   return img_bgr2
 
+
 def mask_center(imgsegbgr):
   imgsegmsk = imgsegbgr[:, :, 3] != 0
   mu = cv2.moments(imgsegmsk.reshape(*imgsegmsk.shape, 1).astype(np.float32), True)
   return int(mu["m10"] / mu["m00"]), int(mu["m01"] / mu["m00"])
+
 
 def make_image_label(imgbgrseg,aColorClass):
   nplabel = np.zeros((imgbgrseg.shape[0], imgbgrseg.shape[1]), np.int32)
@@ -59,10 +69,12 @@ def make_image_label(imgbgrseg,aColorClass):
   return nplabel
 
 
-if __name__ == "__main__":
+########################################################
+
+def demo():
 
   path_img = "testdata/img1.jpg"
-  path_imgseg = path_img.rsplit(".", 1)[0] + "_.png"
+  path_imgseg = path_img.rsplit(".", 1)[0] + "_0_.png"
   radhead = 50
 
   imgsegbgr = cv2.imread(path_imgseg, cv2.IMREAD_UNCHANGED)
@@ -88,21 +100,12 @@ if __name__ == "__main__":
   nplabel = make_image_label(imgsegbgr, aColorClass)
 
   cv2.imshow("hoge", imgbgr)
-  cv2.imshow("hoge_lbl", nplabel.reshape(*nplabel.shape,1).astype(np.uint8)*255 )
+  cv2.imshow("hoge_lbl", nplabel.reshape(*nplabel.shape,1).astype(np.uint8)*10 )
   cv2.imshow("hoge_seg", imgsegbgr)
   cv2.waitKey(0)
 
+if __name__ == "__main__":
+  demo()
 
-  import torch
-  import torch.nn as nn
-  #
-  import torch_unet
-
-  ptimgbgr = torch.from_numpy( imgbgr.reshape((1, *imgbgr.shape)).transpose(0, 3, 1,2).astype(np.float32) ) - 0.5
-  ptimgseg = torch.from_numpy(nplabel.reshape((1, *nplabel.shape)).astype(np.int64))
-  unet = torch_unet.UNet(3,2,True)
-  ptimgout = unet.forward(ptimgbgr)
-  loss = nn.CrossEntropyLoss()(ptimgout,ptimgseg)
-  print("loss:",loss.data.item())
 
 

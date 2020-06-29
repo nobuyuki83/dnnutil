@@ -5,21 +5,20 @@ import math
 import glfw
 import OpenGL.GL as gl
 
-
-import my_gl
+import gl_util
 
 def display(kprad,
             iselected: int,
             img_size_info:list):
   gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-  my_gl.set_view_trans(img_size_info)
-  my_gl.draw_img(img_size_info)
+  gl_util.set_view_trans(img_size_info)
+  gl_util.draw_img(img_size_info)
 
   # draw circle
   if iselected == 1:
-    my_gl.drawCircle((kprad[0],kprad[1]),kprad[2],color=(1,0,0))
+    gl_util.drawCircle((kprad[0],kprad[1]),kprad[2],color=(1,0,0))
   else:
-    my_gl.drawCircle((kprad[0],kprad[1]),kprad[2],color=(1,1,1))
+    gl_util.drawCircle((kprad[0],kprad[1]),kprad[2],color=(1,1,1))
 
   # draw center point
   gl.glPointSize(5)
@@ -53,7 +52,7 @@ def edit_kprad(imgbgr:np.ndarray, kprad:list):
   def mouse_button(window, button, action, mods):
     nonlocal is_mouse_down, iselected
     pos = glfw.get_cursor_pos(window)
-    xy = my_gl.get_img_coord(pos, img_size_info)
+    xy = gl_util.get_img_coord(pos, img_size_info)
     iselected = -1
     if action == glfw.PRESS:
       is_mouse_down = True
@@ -69,7 +68,7 @@ def edit_kprad(imgbgr:np.ndarray, kprad:list):
   def cursor_pos(window, xpos, ypos):
     if not is_mouse_down:
       return
-    xy = my_gl.get_img_coord((xpos,ypos), img_size_info)
+    xy = gl_util.get_img_coord((xpos,ypos), img_size_info)
     len0 = math.sqrt((kprad[0] - xy[0]) * (kprad[0] - xy[0]) + (kprad[1] - xy[1]) * (kprad[1] - xy[1]))
     if iselected == 0:
       kprad[0] = xy[0]
@@ -102,7 +101,7 @@ def edit_kprad(imgbgr:np.ndarray, kprad:list):
   glfw.set_mouse_button_callback(window, mouse_button)
   glfw.set_key_callback(window, keyboard)
 
-  img_size_info = my_gl.load_texture( imgbgr )
+  img_size_info = gl_util.load_texture( imgbgr )
 
   while not glfw.window_should_close(window):
     display(kprad,iselected,img_size_info)

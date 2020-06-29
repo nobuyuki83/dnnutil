@@ -12,6 +12,7 @@ pip3 install PyOpenGL
 pip3 install glfw
 pip3 install PyQt5
 pip3 install Pillow
+pip3 install torch
 ```
 
 

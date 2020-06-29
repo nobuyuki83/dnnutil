@@ -4,13 +4,13 @@ import numpy as np
 import glfw
 import OpenGL.GL as gl
 #
-import my_gl
+import gl_util
 
 def display(loops:list,iloop_selected:int,img_size_info:list):
   gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-  my_gl.set_view_trans(img_size_info)
-  my_gl.draw_img(img_size_info)
-  my_gl.draw_loops(loops,
+  gl_util.set_view_trans(img_size_info)
+  gl_util.draw_img(img_size_info)
+  gl_util.draw_loops(loops,
                    selected_loop=iloop_selected)
   gl.glDisable(gl.GL_TEXTURE_2D)
   gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -40,7 +40,7 @@ def edit_loops(imgbgr:np.ndarray, loops:list):
     nonlocal is_mouse_down, iloop_selected, ivtx_selected
     import loop
     pos = glfw.get_cursor_pos(window)
-    xy = my_gl.get_img_coord(pos, img_size_info)
+    xy = gl_util.get_img_coord(pos, img_size_info)
     if action == glfw.PRESS:
       is_mouse_down = True
       if mode_edit.EDIT_LOOP:
@@ -72,7 +72,7 @@ def edit_loops(imgbgr:np.ndarray, loops:list):
     if not is_mouse_down:
       return
     if mode_edit == EditMode.EDIT_LOOP:
-      xy = my_gl.get_img_coord((xpos,ypos), img_size_info)
+      xy = gl_util.get_img_coord((xpos,ypos), img_size_info)
       loop.move_segmentationloop(loops, iloop_selected, ivtx_selected, xy)
 
   def keyboard(window, key, scancode, action, mods):
@@ -119,7 +119,7 @@ def edit_loops(imgbgr:np.ndarray, loops:list):
   glfw.set_mouse_button_callback(window, mouse_button)
   glfw.set_key_callback(window, keyboard)
 
-  img_size_info = my_gl.load_texture( imgbgr )
+  img_size_info = gl_util.load_texture( imgbgr )
 
   while not glfw.window_should_close(window):
     display(loops,iloop_selected,img_size_info)
@@ -132,10 +132,14 @@ def edit_loops(imgbgr:np.ndarray, loops:list):
 
   return mode_exit
 
-if __name__ == "__main__":
+##############################
 
+def demo():
   import cv2.cv2 as cv2
 
   mode_exit = edit_loops(cv2.imread("testdata/img1.jpg"),
                          [[100, 100, 100, 200, 200, 200, 200, 100],
                           [300, 300, 400, 400, 300, 400]])
+
+if __name__ == "__main__":
+  demo()
