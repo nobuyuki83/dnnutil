@@ -95,19 +95,14 @@ if __name__ == "__main__":
 
   import torch
   import torch.nn as nn
-  import torch.nn.functional as F
-  import unet
+  #
+  import torch_unet
 
   ptimgbgr = torch.from_numpy( imgbgr.reshape((1, *imgbgr.shape)).transpose(0, 3, 1,2).astype(np.float32) ) - 0.5
   ptimgseg = torch.from_numpy(nplabel.reshape((1, *nplabel.shape)).astype(np.int64))
-
-  unet = unet.UNet(3,2,True)
+  unet = torch_unet.UNet(3,2,True)
   ptimgout = unet.forward(ptimgbgr)
-
-  print(ptimgbgr.shape, ptimgseg.shape, ptimgout.shape)
-
-  nllcrit = nn.NLLLoss()
-  loss = nllcrit(F.log_softmax(ptimgout,dim=1), ptimgseg)
-  print(loss.data)
+  loss = nn.CrossEntropyLoss()(ptimgout,ptimgseg)
+  print("loss:",loss.data.item())
 
 
