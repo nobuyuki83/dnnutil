@@ -14,8 +14,7 @@ def paintloops(imgseg, loops, color):
 def demo():
   import cv2.cv2 as cv2
 
-  imgseg = cv2.imread("testdata/img1_0_.png",cv2.IMREAD_UNCHANGED)
-  imgseg = paintloops(imgseg,
+  imgseg = paintloops(cv2.imread("testdata/img1_A.png",cv2.IMREAD_UNCHANGED),
                       [[100, 100, 100, 200, 200, 200, 200, 100],
                        [300, 300, 400, 400, 300, 400]],
                       [0,0,255,255])

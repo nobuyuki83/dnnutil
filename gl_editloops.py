@@ -67,13 +67,12 @@ def edit_loops(imgbgr:np.ndarray, loops:list):
       is_mouse_down = False
 
   def cursor_pos(window, xpos, ypos):
-#    import dnnutil.loop as loop
-    import loop as loop
+    from loop import move_segmentationloop
     if not is_mouse_down:
       return
     if mode_edit == EditMode.EDIT_LOOP:
       xy = gl_util.get_img_coord((xpos,ypos), img_size_info)
-      loop.move_segmentationloop(loops, iloop_selected, ivtx_selected, xy)
+      move_segmentationloop(loops, iloop_selected, ivtx_selected, xy)
 
   def keyboard(window, key, scancode, action, mods):
     nonlocal mode_edit, iloop_selected, ivtx_selected, mode_exit
@@ -140,6 +139,8 @@ def demo():
   mode_exit = edit_loops(cv2.imread("testdata/img1.jpg"),
                          [[100, 100, 100, 200, 200, 200, 200, 100],
                           [300, 300, 400, 400, 300, 400]])
+
+  print(mode_exit)
 
 if __name__ == "__main__":
   demo()

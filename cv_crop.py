@@ -74,7 +74,7 @@ def make_image_label(imgbgrseg,aColorClass):
 def demo():
 
   path_img = "testdata/img1.jpg"
-  path_imgseg = path_img.rsplit(".", 1)[0] + "_0_.png"
+  path_imgseg = path_img.rsplit(".", 1)[0] + "_A.png"
   radhead = 50
 
   imgsegbgr = cv2.imread(path_imgseg, cv2.IMREAD_UNCHANGED)
