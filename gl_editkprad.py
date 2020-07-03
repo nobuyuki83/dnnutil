@@ -117,15 +117,11 @@ def edit_kprad(imgbgr:np.ndarray, kprad:list):
 def demo():
   import cv2.cv2 as cv2
 
-  while True:
-    kprad = [300,300,50]
-    mode_exit = edit_kprad(cv2.imread("testdata/img1.jpg"),
-                           kprad)
-    print("output:",kprad)
-
-    # exit without save
-    if mode_exit == ExitFlag.EXIT_WITHOUT_SAVE or mode_exit == ExitFlag.NO_EXIT:
-      break
+  kprad = [300,300,50]
+  mode_exit = edit_kprad(cv2.imread("testdata/img1.jpg"),
+                         kprad)
+  print("output:",kprad)
+  print("exitmode:",mode_exit)
 
 if __name__ == "__main__":
   demo()
