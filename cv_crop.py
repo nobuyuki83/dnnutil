@@ -57,6 +57,7 @@ def mask_center(imgsegbgr):
 
 
 def make_image_label(imgbgrseg,aColorClass):
+  assert len(imgbgrseg.shape) == 3 and imgbgrseg.shape[2] == 4
   nplabel = np.zeros((imgbgrseg.shape[0], imgbgrseg.shape[1]), np.int32)
   for icolor, color in enumerate(aColorClass):
     if icolor == 0:
