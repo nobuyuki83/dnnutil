@@ -135,11 +135,11 @@ class QWidgetPainterGui(QWidget):
 
 def painter_gui(npimgrgb_b:np.ndarray,
                 npimgrgba_f:np.ndarray,
-                alabel:list):
+                aNameColor:list):
   '''
   :param npimgrgb_b: numpy.ndarray rgb wihtout alpha channel
   :param npimgrgba_f: numpy.ndarray rgba
-  :param alabel:
+  :param aNameColor:
   :return:
   '''
   assert npimgrgb_b.shape[2] == 3 and npimgrgba_f.shape[2] == 4
@@ -147,14 +147,14 @@ def painter_gui(npimgrgb_b:np.ndarray,
   assert len(npimgrgba_f.shape) == len(npimgrgb_b.shape) == 3
   assert npimgrgb_b.dtype == npimgrgba_f.dtype == np.uint8
 
-  aNameColor = []
-  for label in alabel:
-    aNameColor.append([label[0], QColor(*label[1])])
+  aNameQtColor = []
+  for label in aNameColor:
+    aNameQtColor.append([label[0], QColor(*label[1])])
 
   with QApplication(sys.argv) as app:
     ex = QWidgetPainterGui(npimgrgb_b,
                            npimgrgba_f[:, :, [2, 1, 0, 3]].copy(), # rgba -> bgra
-                           aNameColor)
+                           aNameQtColor)
     ex.setMinimumSize(800, 600)
     ex.show()
     app.exec_()
@@ -174,7 +174,7 @@ def demo():
   np_imgseg, is_save = painter_gui(
     np.asarray(Image.open("testdata/img1.jpg")).copy(),
     np.asarray(Image.open("testdata/img1_A.png")).copy(),
-    alabel = [
+    aNameColor= [
       ['background', (0, 0, 0, 0)],
       ['body', (255, 0, 0, 255)],
       ['face', (0, 0, 255, 255)]] )

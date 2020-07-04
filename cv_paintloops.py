@@ -17,7 +17,7 @@ def demo():
   imgseg = paintloops(cv2.imread("testdata/img1_A.png",cv2.IMREAD_UNCHANGED),
                       [[100, 100, 100, 200, 200, 200, 200, 100],
                        [300, 300, 400, 400, 300, 400]],
-                      [0,0,255,255])
+                      [0,255,0,255])
 
   cv2.imshow("imgseg",imgseg)
   cv2.waitKey(0)

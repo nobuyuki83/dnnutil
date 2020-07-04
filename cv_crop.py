@@ -94,14 +94,15 @@ def demo():
                           center=cnt0,
                           trgsize=trgsize0,
                           interpolation=cv2.INTER_NEAREST)
-  aColorClass = [
+  aColor = [
     [0, 0, 0, 0],
-    [255,0,0,255] ]
+    [255,0,0,255],
+    [0, 0, 255, 255] ]
 
-  nplabel = make_image_label(imgsegbgr, aColorClass)
+  nplabel = make_image_label(imgsegbgr, aColor)
 
   cv2.imshow("hoge", imgbgr)
-  cv2.imshow("hoge_lbl", nplabel.reshape(*nplabel.shape,1).astype(np.uint8)*10 )
+  cv2.imshow("hoge_lbl", nplabel.reshape(*nplabel.shape,1).astype(np.uint8)*20 )
   cv2.imshow("hoge_seg", imgsegbgr)
   cv2.waitKey(0)
 
